@@ -29,14 +29,6 @@ const OBSWebSocketApp = () => {
     return () => obs.current.disconnect();
   }, []);
 
-  // set up event listeners
-  useEffect(() => {
-    // update currentScene when scene changes
-    obs.current.on('SwitchScenes', ({ 'scene-name': scene }) => {
-      setCurrentScene(scene);
-    });
-  }, []);
-
   const getSceneList = async () => {
     await obs.current
       .send('GetSceneList')
@@ -52,6 +44,7 @@ const OBSWebSocketApp = () => {
   const setScene = (sceneName: string) => {
     (async () => obs.current
       .send('SetCurrentScene', { 'scene-name': sceneName })
+      .then(() => setCurrentScene(sceneName))
       .catch(e => console.log(e)))();
   };
 
