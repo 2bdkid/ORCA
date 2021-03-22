@@ -9,29 +9,35 @@ const uri = {
 
 const OBSWebSocketApp = () => {
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
+  const [connected, setConnected] = useState(false);
   const obs = useRef(new OBSWebSocket);
 
   // connect to obs websocket
   useEffect(() => {
     (async () => {
-      await obs.current.connect(uri).catch(e => console.log(e));
+      await obs.current
+        .connect(uri)
+        .then(() => setConnected(true))
+        .catch(e => console.log(e));
     })();
     return () => obs.current.disconnect();
   }, []);
 
-  // get scene list
+  const refreshSceneList = async () => {
+    await obs.current
+      .send('GetSceneList')
+      .then(data => setSceneList(data.scenes))
+      .catch(e => console.log(e));
+  };
+
+  // initial scene list
   useEffect(() => {
-    (async () => {
-      await obs.current
-        .send('GetSceneList')
-        .then(data => setSceneList(data.scenes))
-        .catch(e => {
-          console.log(e);
-          // force re-render
-          // TODO: find a better way to make re-render happen
-          setSceneList([]);
-        });
-    })();
+    refreshSceneList();
+  }, [connected]);
+
+  // update scene list continuously
+  useEffect(() => {
+    refreshSceneList();
   });
 
   const createSetSceneSelectCallback = (sceneName: string) => {
