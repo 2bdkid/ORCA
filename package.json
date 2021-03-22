@@ -1,5 +1,5 @@
 {
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
@@ -8,9 +8,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@types/node": "^14.14.35",
+    "events": "^3.3.0",
     "expo": "~40.0.0",
-    "expo-updates": "~0.4.0",
     "expo-splash-screen": "~0.8.0",
+    "expo-updates": "~0.4.0",
+    "obs-websocket-js": "^4.0.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "~0.63.4",
