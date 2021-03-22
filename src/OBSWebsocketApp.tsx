@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, Text, ScrollView, Button, View } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, ScrollView, View } from 'react-native';
+import { Button } from 'react-native-elements';
 import OBSWebSocket from 'obs-websocket-js';
 
 const uri = {
@@ -80,14 +81,15 @@ const SceneSelect = (props: SceneSelectProps) => {
 
   return (
     <View>
-      <Text>Available Scenes</Text>
+      <Text style={styles.headingText}>Available Scenes</Text>
       <ScrollView>
         {sceneList.map(scene =>
           <Button
             onPress={() => setScene(scene.name)}
             title={scene.name}
             key={scene.name}
-            color={scene.name == currentScene ? 'red' : 'blue'}
+            containerStyle={styles.buttonPadding}
+            buttonStyle={scene.name == currentScene ? styles.redBackground : styles.blueBackground}
           />)}
       </ScrollView>
     </View>
@@ -101,6 +103,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  blueBackground: {
+    backgroundColor: "#009eed"
+  },
+  redBackground: {
+    backgroundColor: "#bf112b"
+  },
+  buttonPadding: {
+    padding: 5
+  },
+  headingText: {
+    fontSize: 30,
+    marginBottom: 5
+  }
 });
 
 export default OBSWebSocketApp;
