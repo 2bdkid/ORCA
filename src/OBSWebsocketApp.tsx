@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, Text, ScrollView, Button } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, ScrollView, Button, View } from 'react-native';
 import OBSWebSocket from 'obs-websocket-js';
 
 const uri = {
@@ -9,54 +9,87 @@ const uri = {
 
 const OBSWebSocketApp = () => {
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
-  const [connected, setConnected] = useState(false);
+  const [currentScene, setCurrentScene] = useState('');
   const obs = useRef(new OBSWebSocket);
 
-  // connect to obs websocket
+  const getCurrentScene = async () => {
+    await obs.current
+      .send('GetCurrentScene')
+      .then(data => setCurrentScene(data.name));
+  };
+
+  // connect to obs websocket and get current scene
   useEffect(() => {
     (async () => {
       await obs.current
         .connect(uri)
-        .then(() => setConnected(true))
+        .then(getCurrentScene)
         .catch(e => console.log(e));
     })();
     return () => obs.current.disconnect();
   }, []);
 
-  const refreshSceneList = async () => {
+  // set up event listeners
+  useEffect(() => {
+    // update currentScene when scene changes
+    obs.current.on('SwitchScenes', ({ 'scene-name': scene }) => {
+      setCurrentScene(scene);
+    });
+  }, []);
+
+  const getSceneList = async () => {
     await obs.current
       .send('GetSceneList')
       .then(data => setSceneList(data.scenes))
       .catch(e => console.log(e));
   };
 
-  // initial scene list
-  useEffect(() => {
-    refreshSceneList();
-  }, [connected]);
-
   // update scene list continuously
   useEffect(() => {
-    refreshSceneList();
+    getSceneList();
   });
 
-  const createSetSceneSelectCallback = (sceneName: string) => {
-    return () => {
-      (async () => obs.current
-        .send('SetCurrentScene', {'scene-name': sceneName})
-        .catch(e => console.log(e)))();
-    };
+  const setScene = (sceneName: string) => {
+    (async () => obs.current
+      .send('SetCurrentScene', { 'scene-name': sceneName })
+      .catch(e => console.log(e)))();
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <SceneSelect
+        setScene={setScene}
+        sceneList={sceneList}
+        currentScene={currentScene}
+      />
+    </SafeAreaView>
+  );
+}
+
+interface SceneSelectProps {
+  setScene: (sceneName: string) => void,
+  sceneList: { name: string }[],
+  currentScene: string,
+}
+
+const SceneSelect = (props: SceneSelectProps) => {
+  const setScene = props.setScene;
+  const sceneList = props.sceneList;
+  const currentScene = props.currentScene;
+
+  return (
+    <View>
       <Text>Available Scenes</Text>
       <ScrollView>
-      { sceneList.map(scene => <Button onPress={createSetSceneSelectCallback(scene.name)} 
-                                       title={scene.name} 
-                                       key={scene.name} />) }
+        {sceneList.map(scene =>
+          <Button
+            onPress={() => setScene(scene.name)}
+            title={scene.name}
+            key={scene.name}
+            color={scene.name == currentScene ? 'red' : 'blue'}
+          />)}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
