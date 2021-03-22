@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, Text, ScrollView, View } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Button, Header } from 'react-native-elements';
 import OBSWebSocket from 'obs-websocket-js';
 
 const uri = {
@@ -59,6 +59,7 @@ const OBSWebSocketApp = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <SceneSelectHeader />
       <SceneSelect
         setScene={setScene}
         sceneList={sceneList}
@@ -74,6 +75,15 @@ interface SceneSelectProps {
   currentScene: string,
 }
 
+const SceneSelectHeader = () => {
+  return (
+    <Header
+      centerComponent={{ text: "Select Scene", style: styles.headingText }}
+      backgroundColor="white"
+    />
+  );
+};
+
 const SceneSelect = (props: SceneSelectProps) => {
   const setScene = props.setScene;
   const sceneList = props.sceneList;
@@ -81,7 +91,6 @@ const SceneSelect = (props: SceneSelectProps) => {
 
   return (
     <View>
-      <Text style={styles.headingText}>Available Scenes</Text>
       <ScrollView>
         {sceneList.map(scene =>
           <Button
@@ -89,7 +98,7 @@ const SceneSelect = (props: SceneSelectProps) => {
             title={scene.name}
             key={scene.name}
             containerStyle={styles.buttonPadding}
-            buttonStyle={scene.name == currentScene ? styles.redBackground : styles.blueBackground}
+            buttonStyle={scene.name == currentScene ? styles.selectedButton : styles.unselectedButton}
           />)}
       </ScrollView>
     </View>
@@ -103,18 +112,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  blueBackground: {
+  unselectedButton: {
     backgroundColor: "#009eed"
   },
-  redBackground: {
-    backgroundColor: "#bf112b"
+  selectedButton: {
+    backgroundColor: "#0274ad"
   },
   buttonPadding: {
     padding: 5
   },
   headingText: {
-    fontSize: 30,
-    marginBottom: 5
+    fontSize: 25,
+    marginTop: 15,
   }
 });
 
