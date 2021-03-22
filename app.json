@@ -1,0 +1,12 @@
+{
+  "name": "obs-websocket-app",
+  "displayName": "obs-websocket-app",
+  "expo": {
+    "name": "obs-websocket-app",
+    "slug": "obs-websocket-app",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
