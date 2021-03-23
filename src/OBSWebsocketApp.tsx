@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, Text, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import { Button, Header } from 'react-native-elements';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import OBSWebSocket from 'obs-websocket-js';
 
 const uri = {
   address: '192.168.1.18:4444',
   password: "password"
-}
+};
 
 const OBSWebSocketApp = () => {
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
@@ -58,14 +59,16 @@ const OBSWebSocketApp = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaProvider>
       <SceneSelectHeader />
-      <SceneSelect
-        setScene={setScene}
-        sceneList={sceneList}
-        currentScene={currentScene}
-      />
-    </SafeAreaView>
+      <View style={styles.centered}>
+        <SceneSelect
+          setScene={setScene}
+          sceneList={sceneList}
+          currentScene={currentScene}
+        />
+      </View>
+    </SafeAreaProvider>
   );
 }
 
@@ -106,25 +109,23 @@ const SceneSelect = (props: SceneSelectProps) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   unselectedButton: {
-    backgroundColor: "#009eed"
+    backgroundColor: "#009eed",
   },
   selectedButton: {
-    backgroundColor: "#0274ad"
+    backgroundColor: "#0274ad",
   },
   buttonPadding: {
     padding: 5
   },
   headingText: {
     fontSize: 25,
-    marginTop: 15,
-  }
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default OBSWebSocketApp;
