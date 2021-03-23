@@ -3,6 +3,7 @@ import { StyleSheet, ScrollView, View } from 'react-native';
 import { Button, Header } from 'react-native-elements';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import OBSWebSocket from 'obs-websocket-js';
+import useOBSWebSocket from './useOBSWebSocket';
 
 const uri = {
   address: '192.168.1.18:4444',
@@ -12,35 +13,33 @@ const uri = {
 const OBSWebSocketApp = () => {
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
   const [currentScene, setCurrentScene] = useState('');
-  const obs = useRef(new OBSWebSocket);
+  const { obs } = useOBSWebSocket();
 
   const getCurrentScene = async () => {
-    await obs.current
-      .send('GetCurrentScene')
+    await obs.send('GetCurrentScene')
       .then(data => setCurrentScene(data.name));
   };
 
   // connect to obs websocket and get current scene
   useEffect(() => {
     (async () => {
-      await obs.current
-        .connect(uri)
+      await obs.connect(uri)
         .then(getCurrentScene)
         .catch(e => console.log(e));
     })();
-    return () => obs.current.disconnect();
+    return () => obs.disconnect();
   }, []);
 
   // set up event callbacks
   useEffect(() => {
     // update currentScene
-    obs.current.on('SwitchScenes', ({ 'scene-name': scene }) =>
+    obs.on('SwitchScenes', ({ 'scene-name': scene }) =>
       setCurrentScene(scene)
     );
   }, []);
 
   const getSceneList = async () => {
-    await obs.current
+    await obs
       .send('GetSceneList')
       .then(data => setSceneList(data.scenes))
       .catch(e => console.log(e));
@@ -52,8 +51,7 @@ const OBSWebSocketApp = () => {
   });
 
   const setScene = (sceneName: string) => {
-    (async () => obs.current
-      .send('SetCurrentScene', { 'scene-name': sceneName })
+    (async () => obs.send('SetCurrentScene', { 'scene-name': sceneName })
       .then(() => setCurrentScene(sceneName))
       .catch(e => console.log(e)))();
   };
