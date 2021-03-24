@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { Button, Header } from 'react-native-elements';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import OBSWebSocket from 'obs-websocket-js';
 import useOBSWebSocket from './useOBSWebSocket';
 
 const uri = {
@@ -11,62 +10,18 @@ const uri = {
 };
 
 const OBSWebSocketApp = () => {
-  const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
-  const [currentScene, setCurrentScene] = useState('');
-  const [isCurrentlyStreaming, setIsCurrentlyStreaming] = useState(false);
-  const { obs } = useOBSWebSocket();
-
-  const getCurrentScene = async () => {
-    return obs.send('GetCurrentScene')
-      .then(data => setCurrentScene(data.name));
-  };
-
-  // connect to obs websocket and get current scene
-  useEffect(() => {
-    (async () => {
-      await obs.connect(uri)
-        .then(getCurrentScene)
-        .catch(e => console.log(e));
-    })();
-    return () => obs.disconnect();
-  }, []);
-
-  // set up event callbacks
-  useEffect(() => {
-    // update currentScene
-    obs.on('SwitchScenes', ({ 'scene-name': scene }) =>
-      setCurrentScene(scene)
-    );
-    obs.on('StreamStarted', () => {
-      setIsCurrentlyStreaming(true);
-    });
-    obs.on('StreamStopped', () => {
-      setIsCurrentlyStreaming(false);
-    });
-  }, []);
-
-  const getSceneList = async () => {
-    await obs
-      .send('GetSceneList')
-      .then(data => setSceneList(data.scenes))
-      .catch(e => console.log(e));
-  };
+  const { 
+    obs,
+    sceneList,
+    currentScene,
+    isCurrentlyStreaming,
+    setScene,
+  } = useOBSWebSocket(uri);
 
   const toggleStream = async () => {
     await obs
       .send('StartStopStreaming')
       .catch(e => console.log(e));
-  };
-
-  // update scene list continuously
-  useEffect(() => {
-    getSceneList();
-  });
-
-  const setScene = (sceneName: string) => {
-    (async () => obs.send('SetCurrentScene', { 'scene-name': sceneName })
-      .then(() => setCurrentScene(sceneName))
-      .catch(e => console.log(e)))();
   };
 
   return (
