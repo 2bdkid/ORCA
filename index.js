@@ -1,8 +1,8 @@
 import 'react-native-gesture-handler'
 import { registerRootComponent } from 'expo';
-import OBSWebSocketApp from './src/OBSWebsocketApp';
+import AppWrapper from './src/AppWrapper';
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in the Expo client or in a native build,
 // the environment is set up appropriately
-registerRootComponent(OBSWebSocketApp);
+registerRootComponent(AppWrapper);

@@ -17,7 +17,7 @@ const OBSWebSocketApp = () => {
   const { obs } = useOBSWebSocket();
 
   const getCurrentScene = async () => {
-    await obs.send('GetCurrentScene')
+    return obs.send('GetCurrentScene')
       .then(data => setCurrentScene(data.name));
   };
 
