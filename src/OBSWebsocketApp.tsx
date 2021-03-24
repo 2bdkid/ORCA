@@ -44,8 +44,8 @@ const OBSWebSocketApp = () => {
 
 interface SceneSelectProps {
   setScene: (sceneName: string) => void,
-  sceneList: { name: string }[],
-  currentScene: string,
+  sceneList: Readonly<{ name: string }[]>,
+  currentScene: Readonly<string>,
 }
 
 const SceneSelectHeader = () => {

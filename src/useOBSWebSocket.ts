@@ -3,10 +3,10 @@ import OBSWebSocket from 'obs-websocket-js';
 
 interface useOBSWebSocketReturnValue {
   obs: OBSWebSocket,
-  sceneList: OBSWebSocket.Scene[],
-  currentScene: string,
+  sceneList: Readonly<OBSWebSocket.Scene[]>,
+  currentScene: Readonly<string>,
   setScene: (scene: string) => void,
-  isCurrentlyStreaming: boolean,
+  isCurrentlyStreaming: Readonly<boolean>,
 };
 
 interface SocketURI {
@@ -15,7 +15,7 @@ interface SocketURI {
 }
 
 const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
-  const obs = useRef(new OBSWebSocket);
+  const obs = useRef(new OBSWebSocket());
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
   const [currentScene, setCurrentScene] = useState('');
   const [isCurrentlyStreaming, setIsCurrentlyStreaming] = useState(false);
@@ -26,12 +26,19 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       .then(data => setCurrentScene(data.name));
   };
 
-  // connect to obs websocket and get current scene
+  const getSceneList = async () => {
+    return obs.current
+      .send('GetSceneList')
+      .then(data => setSceneList(data.scenes));
+  };
+
+  // connect to obs websocket and get state
   useEffect(() => {
     (async () => {
       await obs.current
         .connect(uri)
         .then(getCurrentScene)
+        .then(getSceneList)
         .catch(e => console.log(e));
     })();
     return () => obs.current.disconnect();
@@ -49,6 +56,9 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     obs.current.on('StreamStopped', () => {
       setIsCurrentlyStreaming(false);
     });
+    obs.current.on('ScenesChanged', ({ scenes }) => {
+      setSceneList(scenes);
+    })
   }, []);
 
   const setScene = (sceneName: string) => {
@@ -57,18 +67,6 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       .then(() => setCurrentScene(sceneName))
       .catch(e => console.log(e)))();
   };
-
-  const getSceneList = async () => {
-    await obs.current
-      .send('GetSceneList')
-      .then(data => setSceneList(data.scenes))
-      .catch(e => console.log(e));
-  };
-
-  // update scene list continuously
-  useEffect(() => {
-    getSceneList();
-  });
 
   return {
     obs: obs.current,
