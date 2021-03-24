@@ -13,6 +13,7 @@ const uri = {
 const OBSWebSocketApp = () => {
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
   const [currentScene, setCurrentScene] = useState('');
+  const [isCurrentlyStreaming, setIsCurrentlyStreaming] = useState(false);
   const { obs } = useOBSWebSocket();
 
   const getCurrentScene = async () => {
@@ -36,12 +37,24 @@ const OBSWebSocketApp = () => {
     obs.on('SwitchScenes', ({ 'scene-name': scene }) =>
       setCurrentScene(scene)
     );
+    obs.on('StreamStarted', () => {
+      setIsCurrentlyStreaming(true);
+    });
+    obs.on('StreamStopped', () => {
+      setIsCurrentlyStreaming(false);
+    });
   }, []);
 
   const getSceneList = async () => {
     await obs
       .send('GetSceneList')
       .then(data => setSceneList(data.scenes))
+      .catch(e => console.log(e));
+  };
+
+  const toggleStream = async () => {
+    await obs
+      .send('StartStopStreaming')
       .catch(e => console.log(e));
   };
 
@@ -59,11 +72,15 @@ const OBSWebSocketApp = () => {
   return (
     <SafeAreaProvider>
       <SceneSelectHeader />
-      <View style={styles.centered}>
+      <View style={styles.container}>
         <SceneSelect
           setScene={setScene}
           sceneList={sceneList}
           currentScene={currentScene}
+        />
+        <StartStopStreamingButton
+          onPress={toggleStream}
+          isStreaming={isCurrentlyStreaming}
         />
       </View>
     </SafeAreaProvider>
@@ -106,6 +123,23 @@ const SceneSelect = (props: SceneSelectProps) => {
   );
 }
 
+interface StartStopStreamingButtonProps {
+  isStreaming: boolean,
+  onPress: () => void,
+}
+
+const StartStopStreamingButton = (props: StartStopStreamingButtonProps) => {
+  const isStreaming = props.isStreaming;
+  const onPress = props.onPress;
+
+  return (
+    <Button
+      onPress={onPress}
+      title={isStreaming ? "Stop Stream" : "Start Stream"}
+    />
+  );
+};
+
 const styles = StyleSheet.create({
   unselectedButton: {
     backgroundColor: "#009eed",
@@ -114,16 +148,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#0274ad",
   },
   buttonPadding: {
-    padding: 5
+    paddingBottom: 10
   },
   headingText: {
     fontSize: 25,
   },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  container: {
+    justifyContent: "space-evenly",
+    alignItems: "flex-start",
+    flexDirection: "row-reverse",
+  }
 });
 
 export default OBSWebSocketApp;
