@@ -3,10 +3,10 @@ import OBSWebSocket from 'obs-websocket-js';
 
 interface useOBSWebSocketReturnValue {
   obs: OBSWebSocket,
-  sceneList: Readonly<OBSWebSocket.Scene[]>,
-  currentScene: Readonly<string>,
-  setScene: (scene: string) => void,
-  isCurrentlyStreaming: Readonly<boolean>,
+  readonly sceneList: OBSWebSocket.Scene[],
+  readonly currentScene: string,
+  setCurrentScene: (scene: string) => void,
+  readonly isCurrentlyStreaming: boolean,
 };
 
 interface SocketURI {
@@ -61,7 +61,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     })
   }, []);
 
-  const setScene = (sceneName: string) => {
+  const setCurrentSceneInSync = (sceneName: string) => {
     (async () => obs.current
       .send('SetCurrentScene', { 'scene-name': sceneName })
       .then(() => setCurrentScene(sceneName))
@@ -73,7 +73,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     sceneList: sceneList,
     currentScene: currentScene,
     isCurrentlyStreaming: isCurrentlyStreaming,
-    setScene: setScene,
+    setCurrentScene: setCurrentSceneInSync,
   };
 };
 

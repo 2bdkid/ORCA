@@ -1,21 +1,31 @@
 import React from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
-import { Button, Header } from 'react-native-elements';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Button } from 'react-native-elements';
+import OBSWebSocket from 'obs-websocket-js';
+import useBottomTabNavigator from './useBottomTabNavigator';
 import useOBSWebSocket from './useOBSWebSocket';
 
 const uri = {
   address: '192.168.1.18:4444',
-  password: "password"
+  password: 'password'
 };
 
+const OBSContext = React.createContext({
+  sceneList: [] as Readonly<OBSWebSocket.Scene[]>,
+  currentScene: '' as Readonly<String>,
+  isCurrentlyStreaming: false as Readonly<Boolean>,
+  setCurrentScene: (_: string) => { },
+});
+
 const OBSWebSocketApp = () => {
-  const { 
+  const Tab = useBottomTabNavigator();
+
+  const {
     obs,
     sceneList,
     currentScene,
     isCurrentlyStreaming,
-    setScene,
+    setCurrentScene,
   } = useOBSWebSocket(uri);
 
   const toggleStream = async () => {
@@ -24,57 +34,42 @@ const OBSWebSocketApp = () => {
       .catch(e => console.log(e));
   };
 
+  const context = {
+    sceneList: sceneList,
+    currentScene: currentScene,
+    isCurrentlyStreaming: isCurrentlyStreaming,
+    setCurrentScene: setCurrentScene,
+  };
+
   return (
-    <SafeAreaProvider>
-      <SceneSelectHeader />
-      <View style={styles.container}>
-        <SceneSelect
-          setScene={setScene}
-          sceneList={sceneList}
-          currentScene={currentScene}
-        />
-        <StartStopStreamingButton
-          onPress={toggleStream}
-          isStreaming={isCurrentlyStreaming}
-        />
-      </View>
-    </SafeAreaProvider>
+    <OBSContext.Provider value={context}>
+      <Tab.Navigator>
+        <Tab.Screen name='Scene Select' component={SceneSelect} />
+      </Tab.Navigator>
+    </OBSContext.Provider>
   );
 }
 
-interface SceneSelectProps {
-  setScene: (sceneName: string) => void,
-  sceneList: Readonly<{ name: string }[]>,
-  currentScene: Readonly<string>,
-}
-
-const SceneSelectHeader = () => {
+const SceneSelect = () => {
   return (
-    <Header
-      centerComponent={{ text: "Select Scene", style: styles.headingText }}
-      backgroundColor="white"
-    />
-  );
-};
-
-const SceneSelect = (props: SceneSelectProps) => {
-  const setScene = props.setScene;
-  const sceneList = props.sceneList;
-  const currentScene = props.currentScene;
-
-  return (
-    <View>
-      <ScrollView>
-        {sceneList.map(scene =>
-          <Button
-            onPress={() => setScene(scene.name)}
-            title={scene.name}
-            key={scene.name}
-            containerStyle={styles.buttonPadding}
-            buttonStyle={scene.name == currentScene ? styles.selectedButton : styles.unselectedButton}
-          />)}
-      </ScrollView>
-    </View>
+    <OBSContext.Consumer>
+      { ({ sceneList, currentScene, setCurrentScene }) => {
+        return (
+          <View>
+            <ScrollView contentContainerStyle={styles.sceneSelectContainer}>
+              {sceneList.map(scene =>
+                <Button
+                  onPress={() => setCurrentScene(scene.name)}
+                  title={scene.name}
+                  key={scene.name}
+                  containerStyle={styles.buttonPadding}
+                  buttonStyle={scene.name == currentScene ? styles.selectedButton : styles.unselectedButton}
+                />)}
+            </ScrollView>
+          </View>
+        );
+      }}
+    </OBSContext.Consumer>
   );
 }
 
@@ -90,17 +85,17 @@ const StartStopStreamingButton = (props: StartStopStreamingButtonProps) => {
   return (
     <Button
       onPress={onPress}
-      title={isStreaming ? "Stop Stream" : "Start Stream"}
+      title={isStreaming ? 'Stop Stream' : 'Start Stream'}
     />
   );
 };
 
 const styles = StyleSheet.create({
   unselectedButton: {
-    backgroundColor: "#009eed",
+    backgroundColor: '#009eed',
   },
   selectedButton: {
-    backgroundColor: "#0274ad",
+    backgroundColor: '#0274ad',
   },
   buttonPadding: {
     paddingBottom: 10
@@ -108,10 +103,10 @@ const styles = StyleSheet.create({
   headingText: {
     fontSize: 25,
   },
-  container: {
-    justifyContent: "space-evenly",
-    alignItems: "flex-start",
-    flexDirection: "row-reverse",
+  sceneSelectContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
   }
 });
 
