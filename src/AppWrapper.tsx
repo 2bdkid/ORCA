@@ -1,12 +1,15 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import OBSWebSocketApp from './OBSWebsocketApp';
 
 const AppWrapper = () => {
   return (
-    <NavigationContainer>
-      <OBSWebSocketApp />
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+          <OBSWebSocketApp />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 };
 
