@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { Button } from 'react-native-elements';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import OBSWebSocket from 'obs-websocket-js';
 import useBottomTabNavigator from './useBottomTabNavigator';
 import useOBSWebSocket from './useOBSWebSocket';
@@ -10,11 +11,15 @@ const uri = {
   password: 'password'
 };
 
-const OBSContext = React.createContext({
+const SceneSelectContext = React.createContext({
   sceneList: [] as Readonly<OBSWebSocket.Scene[]>,
-  currentScene: '' as Readonly<String>,
-  isCurrentlyStreaming: false as Readonly<Boolean>,
+  currentScene: '',
   setCurrentScene: (_: string) => { },
+});
+
+const StartStopStreamingButtonContext = React.createContext({
+  isCurrentlyStreaming: false,
+  onPress: () => { },
 });
 
 const OBSWebSocketApp = () => {
@@ -34,25 +39,47 @@ const OBSWebSocketApp = () => {
       .catch(e => console.log(e));
   };
 
-  const context = {
+  const sceneSelectContext = {
     sceneList: sceneList,
     currentScene: currentScene,
-    isCurrentlyStreaming: isCurrentlyStreaming,
     setCurrentScene: setCurrentScene,
   };
 
+  const startStopStreamingButtonContext = {
+    isCurrentlyStreaming: isCurrentlyStreaming,
+    onPress: toggleStream,
+  }
+
   return (
-    <OBSContext.Provider value={context}>
-      <Tab.Navigator>
-        <Tab.Screen name='Scene Select' component={SceneSelect} />
-      </Tab.Navigator>
-    </OBSContext.Provider>
+    <StartStopStreamingButtonContext.Provider value={startStopStreamingButtonContext}>
+      <SceneSelectContext.Provider value={sceneSelectContext}>
+        <Tab.Navigator
+          initialRouteName='Scene Select'
+          tabBarOptions={{ 'showLabel': false }}
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ color, size }) => {
+              const iconName = (route.name == 'Scene Select') ? 'home-outline' : 'cloud-upload-outline';
+              return <Ionicons name={iconName} color={color} size={size} />;
+            }
+          })}
+        >
+          <Tab.Screen
+            name='Scene Select'
+            component={SceneSelect}
+          />
+          <Tab.Screen
+            name='Start Stop Stream Button'
+            component={StartStopStreamingButton}
+          />
+        </Tab.Navigator>
+      </SceneSelectContext.Provider>
+    </StartStopStreamingButtonContext.Provider>
   );
 }
 
 const SceneSelect = () => {
   return (
-    <OBSContext.Consumer>
+    <SceneSelectContext.Consumer>
       { ({ sceneList, currentScene, setCurrentScene }) => {
         return (
           <View>
@@ -69,24 +96,25 @@ const SceneSelect = () => {
           </View>
         );
       }}
-    </OBSContext.Consumer>
+    </SceneSelectContext.Consumer>
   );
 }
 
-interface StartStopStreamingButtonProps {
-  isStreaming: boolean,
-  onPress: () => void,
-}
-
-const StartStopStreamingButton = (props: StartStopStreamingButtonProps) => {
-  const isStreaming = props.isStreaming;
-  const onPress = props.onPress;
-
+const StartStopStreamingButton = () => {
   return (
-    <Button
-      onPress={onPress}
-      title={isStreaming ? 'Stop Stream' : 'Start Stream'}
-    />
+    <StartStopStreamingButtonContext.Consumer>
+      { ({ isCurrentlyStreaming, onPress }) => {
+        return (
+          <View style={styles.startStopStreamingButtonContainer}>
+            <Button
+              onPress={onPress}
+              title={isCurrentlyStreaming ? 'Stop Stream' : 'Start Stream'}
+              containerStyle={styles.startStopStreamingButton}
+            />
+          </View>
+        );
+      }}
+    </StartStopStreamingButtonContext.Consumer>
   );
 };
 
@@ -107,7 +135,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-  }
+    marginTop: 10
+  },
+  startStopStreamingButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  startStopStreamingButton: {
+    width: '50%'
+  },
 });
 
 export default OBSWebSocketApp;
