@@ -23,7 +23,7 @@ const SceneSelect = () => {
                     onPress={() => setCurrentScene(scene.name)}
                     title={scene.name}
                     key={scene.name}
-                    containerStyle={styles.buttonPadding}
+                    containerStyle={styles.buttonContainer}
                     buttonStyle={scene.name == currentScene ? styles.selectedButton : styles.unselectedButton}
                   />)}
               </ScrollView>
@@ -42,8 +42,9 @@ const styles = StyleSheet.create({
   selectedButton: {
     backgroundColor: '#0274ad',
   },
-  buttonPadding: {
-    paddingBottom: 10
+  buttonContainer: {
+    paddingBottom: 10,
+    minWidth: 75,
   },
   sceneSelectContainer: {
     flexDirection: 'column',
