@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import OBSWebSocket from 'obs-websocket-js';
+import useInterval from 'react-useinterval';
 
 interface useOBSWebSocketReturnValue {
   obs: OBSWebSocket,
@@ -7,6 +8,7 @@ interface useOBSWebSocketReturnValue {
   readonly currentScene: string,
   setCurrentScene: (scene: string) => void,
   readonly isCurrentlyStreaming: boolean,
+  readonly stats: OBSWebSocket.OBSStats,
 };
 
 interface SocketURI {
@@ -19,6 +21,26 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
   const [currentScene, setCurrentScene] = useState('');
   const [isCurrentlyStreaming, setIsCurrentlyStreaming] = useState(false);
+  const [stats, setStats] = useState<OBSWebSocket.OBSStats>({
+    fps: 0.0,
+    'render-total-frames': 0,
+    'render-missed-frames': 0,
+    'output-total-frames': 0,
+    'output-skipped-frames': 0,
+    'average-frame-time': 0,
+    'cpu-usage': 0,
+    'memory-usage': 0,
+    'free-disk-space': 0,
+  });
+
+  const getStats = () => {
+    (async () => await obs.current
+      .send('GetStats')
+      .then(({ stats }) => setStats(stats))
+      .catch(e => console.log(e)))();
+  };
+
+  useInterval(getStats, 2000);
 
   const getCurrentScene = async () => {
     return obs.current
@@ -32,11 +54,18 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       .then(data => setSceneList(data.scenes));
   };
 
+  const getIsCurrentlyStreaming = async () => {
+    return obs.current
+      .send('GetStreamingStatus')
+      .then(({ streaming }) => setIsCurrentlyStreaming(streaming))
+  }
+
   // connect to obs websocket and get state
   useEffect(() => {
     (async () => {
       await obs.current
         .connect(uri)
+        .then(getIsCurrentlyStreaming)
         .then(getCurrentScene)
         .then(getSceneList)
         .catch(e => console.log(e));
@@ -58,7 +87,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     });
     obs.current.on('ScenesChanged', ({ scenes }) => {
       setSceneList(scenes);
-    })
+    });
   }, []);
 
   const setCurrentSceneInSync = (sceneName: string) => {
@@ -74,6 +103,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     currentScene: currentScene,
     isCurrentlyStreaming: isCurrentlyStreaming,
     setCurrentScene: setCurrentSceneInSync,
+    stats: stats,
   };
 };
 
