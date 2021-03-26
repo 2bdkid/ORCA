@@ -12,7 +12,7 @@ const StartStopStreamingButton = () => {
     <StartStopStreamingButtonContext.Consumer>
       { ({ isCurrentlyStreaming, onPress }) => {
         return (
-          <View>
+          <View style={styles.container}>
             <Button
               onPress={onPress}
               title={isCurrentlyStreaming ? 'Stop Stream' : 'Start Stream'}
@@ -29,6 +29,11 @@ const styles = StyleSheet.create({
   startStopStreamingButton: {
     width: '50%'
   },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
 
 export default StartStopStreamingButton;
