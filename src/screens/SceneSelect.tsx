@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import OBSWebSocket from 'obs-websocket-js';
 import { StyleSheet, ScrollView, View } from 'react-native';
@@ -11,26 +11,26 @@ export const SceneSelectContext = React.createContext({
 });
 
 const SceneSelect = () => {
+  const {
+    sceneList,
+    currentScene,
+    setCurrentScene,
+  } = useContext(SceneSelectContext);
+
   return (
     <SafeAreaView>
-      <SceneSelectContext.Consumer>
-        {({ sceneList, currentScene, setCurrentScene }) => {
-          return (
-            <View style={styles.sceneSelectContainer}>
-              <ScrollView contentContainerStyle={styles.sceneSelectListContainer}>
-                {sceneList.map(scene =>
-                  <Button
-                    onPress={() => setCurrentScene(scene.name)}
-                    title={scene.name}
-                    key={scene.name}
-                    containerStyle={styles.buttonContainer}
-                    buttonStyle={scene.name == currentScene ? styles.selectedButton : styles.unselectedButton}
-                  />)}
-              </ScrollView>
-            </View>
-          );
-        }}
-      </SceneSelectContext.Consumer>
+      <View style={styles.sceneSelectContainer}>
+        <ScrollView contentContainerStyle={styles.sceneSelectListContainer}>
+          {sceneList.map(scene =>
+            <Button
+              onPress={() => setCurrentScene(scene.name)}
+              title={scene.name}
+              key={scene.name}
+              containerStyle={styles.buttonContainer}
+              buttonStyle={scene.name == currentScene ? styles.selectedButton : styles.unselectedButton}
+            />)}
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

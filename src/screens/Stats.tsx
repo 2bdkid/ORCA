@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -18,25 +18,28 @@ export const StatsContext = React.createContext({
 });
 
 const Stats = () => {
+  const {
+    isCurrentlyStreaming,
+    stats,
+  } = useContext(StatsContext);
+
   return (
     <SafeAreaView>
-      <StatsContext.Consumer>
-        {({ isCurrentlyStreaming, stats }) => {
-          return (isCurrentlyStreaming ?
-            <View style={styles.container}>
-              <Text>Render Total Frames: {stats['render-total-frames']}</Text>
-              <Text>Render Missed Frames: {stats['render-missed-frames']}</Text>
-              <Text>Output Total Frames: {stats['output-total-frames']}</Text>
-              <Text>Output Skipped Frames: {stats['output-skipped-frames']}</Text>
-              <Text>Average Frame Time: {stats['average-frame-time']}</Text>
-              <Text>CPU Usage: {stats['cpu-usage']}</Text>
-              <Text>Memory Usage: {stats['memory-usage']}</Text>
-              <Text>Free Disk Space: {stats['free-disk-space']}</Text>
-            </View>
-            : <Text>Not currently streaming</Text>
-          );
-        }}
-      </StatsContext.Consumer>
+      <View style={styles.container}>
+        {isCurrentlyStreaming ?
+          <>
+            <Text>Render Total Frames: {stats['render-total-frames']}</Text>
+            <Text>Render Missed Frames: {stats['render-missed-frames']}</Text>
+            <Text>Output Total Frames: {stats['output-total-frames']}</Text>
+            <Text>Output Skipped Frames: {stats['output-skipped-frames']}</Text>
+            <Text>Average Frame Time: {stats['average-frame-time']}</Text>
+            <Text>CPU Usage: {stats['cpu-usage']}</Text>
+            <Text>Memory Usage: {stats['memory-usage']}</Text>
+            <Text>Free Disk Space: {stats['free-disk-space']}</Text>
+          </>
+          : <Text>Not currently streaming</Text>
+        }
+      </View>
     </SafeAreaView>
   );
 };
