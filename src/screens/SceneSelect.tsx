@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0274ad',
   },
   buttonContainer: {
-    paddingBottom: 10,
+    marginTop: 10,
     minWidth: 75,
   },
   sceneSelectContainer: {
@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    marginTop: 10,
   }
 });
 
