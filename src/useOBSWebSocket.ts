@@ -18,7 +18,7 @@ interface SocketURI {
   password: string,
 }
 
-export const StreamContext = React.createContext({
+export const OBSWebSocketContext = React.createContext({
   isCurrentlyStreaming: false,
   connected: false,
   reconnect: () => { },

@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
 import WarnOnStreamDisconnect from '../WarnOnStreamDisconnect';
-import { StreamContext } from '../useOBSWebSocket';
+import { OBSWebSocketContext } from '../useOBSWebSocket';
 
 export const StartStopStreamingButtonContext = React.createContext({
   onPress: () => { },
@@ -18,7 +18,7 @@ const StartStopStreamingButton = () => {
     reconnect,
     connected,
     isCurrentlyStreaming,
-  } = useContext(StreamContext);
+  } = useContext(OBSWebSocketContext);
 
   return (
     <SafeAreaView>

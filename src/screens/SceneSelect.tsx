@@ -4,7 +4,7 @@ import OBSWebSocket from 'obs-websocket-js';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { Button } from 'react-native-elements';
 import WarnOnStreamDisconnect from '../WarnOnStreamDisconnect';
-import { StreamContext } from '../useOBSWebSocket';
+import { OBSWebSocketContext } from '../useOBSWebSocket';
 
 export const SceneSelectContext = React.createContext({
   sceneList: [] as Readonly<OBSWebSocket.Scene[]>,
@@ -22,7 +22,7 @@ const SceneSelect = () => {
   const {
     connected,
     reconnect
-  } = useContext(StreamContext);
+  } = useContext(OBSWebSocketContext);
 
   return (
     <SafeAreaView>

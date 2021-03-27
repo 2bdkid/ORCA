@@ -1,7 +1,7 @@
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import useOBSWebSocket, { StreamContext } from './useOBSWebSocket';
+import useOBSWebSocket, { OBSWebSocketContext } from './useOBSWebSocket';
 import useBottomTabNavigator from './useBottomTabNavigator';
 import SceneSelect, { SceneSelectContext } from './screens/SceneSelect';
 import StartStopStreamingButton, { StartStopStreamingButtonContext } from './screens/StartStopStreamingButton';
@@ -26,7 +26,7 @@ const OBSWebSocketApp = () => {
     reconnect,
   } = useOBSWebSocket(uri);
 
-  const streamContext = {
+  const obsWebSocketContext = {
     isCurrentlyStreaming: isCurrentlyStreaming,
     reconnect: reconnect,
     connected: connected,
@@ -53,7 +53,7 @@ const OBSWebSocketApp = () => {
   };
 
   return (
-    <StreamContext.Provider value={streamContext}>
+    <OBSWebSocketContext.Provider value={obsWebSocketContext}>
       <StatsContext.Provider value={statsContext}>
         <StartStopStreamingButtonContext.Provider value={startStopStreamingButtonContext}>
           <SceneSelectContext.Provider value={sceneSelectContext}>

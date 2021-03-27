@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WarnOnStreamDisconnect from '../WarnOnStreamDisconnect';
-import { StreamContext } from '../useOBSWebSocket';
+import { OBSWebSocketContext } from '../useOBSWebSocket';
 
 export const StatsContext = React.createContext({
   stats: {
@@ -27,7 +27,7 @@ const Stats = () => {
     reconnect,
     isCurrentlyStreaming,
     connected
-  } = useContext(StreamContext);
+  } = useContext(OBSWebSocketContext);
 
   return (
     <SafeAreaView>
