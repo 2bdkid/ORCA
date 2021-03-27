@@ -16,6 +16,7 @@ const OBSWebSocketApp = () => {
   const Tab = useBottomTabNavigator();
 
   const {
+    connected,
     obs,
     sceneList,
     currentScene,
@@ -24,26 +25,29 @@ const OBSWebSocketApp = () => {
     stats,
   } = useOBSWebSocket(uri);
 
-  const toggleStream = async () => {
-    await obs
+  const toggleStream = () => {
+    (async () => await obs
       .send('StartStopStreaming')
-      .catch(e => console.log(e));
+      .catch(e => console.log(e)))();
   };
 
   const sceneSelectContext = {
     sceneList: sceneList,
     currentScene: currentScene,
     setCurrentScene: setCurrentScene,
+    connected: connected,
   };
 
   const startStopStreamingButtonContext = {
     isCurrentlyStreaming: isCurrentlyStreaming,
     onPress: toggleStream,
+    connected: connected,
   };
 
   const statsContext = {
     isCurrentlyStreaming: isCurrentlyStreaming,
     stats: stats,
+    connected: connected,
   };
 
   return (

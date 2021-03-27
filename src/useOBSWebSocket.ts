@@ -36,10 +36,14 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
   });
 
   const getStats = () => {
-    (async () => await obs.current
-      .send('GetStats')
-      .then(({ stats }) => setStats(stats))
-      .catch(e => console.log(e)))();
+    (async () => {
+      if (connected) {
+        await obs.current
+          .send('GetStats')
+          .then(({ stats }) => setStats(stats))
+          .catch(e => console.log(e))
+      }
+    })();
   };
 
   useInterval(getStats, 2000);

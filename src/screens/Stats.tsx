@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import WarnOnStreamDisconnect from '../WarnOnStreamDisconnect';
 
 export const StatsContext = React.createContext({
   isCurrentlyStreaming: false,
@@ -15,31 +16,35 @@ export const StatsContext = React.createContext({
     'memory-usage': 0,
     'free-disk-space': 0,
   },
+  connected: false,
 });
 
 const Stats = () => {
   const {
     isCurrentlyStreaming,
     stats,
+    connected,
   } = useContext(StatsContext);
 
   return (
     <SafeAreaView>
-      <View style={styles.container}>
-        {isCurrentlyStreaming ?
-          <>
-            <Text>Render Total Frames: {stats['render-total-frames']}</Text>
-            <Text>Render Missed Frames: {stats['render-missed-frames']}</Text>
-            <Text>Output Total Frames: {stats['output-total-frames']}</Text>
-            <Text>Output Skipped Frames: {stats['output-skipped-frames']}</Text>
-            <Text>Average Frame Time: {stats['average-frame-time']}</Text>
-            <Text>CPU Usage: {stats['cpu-usage']}</Text>
-            <Text>Memory Usage: {stats['memory-usage']}</Text>
-            <Text>Free Disk Space: {stats['free-disk-space']}</Text>
-          </>
-          : <Text>Not currently streaming</Text>
-        }
-      </View>
+      <WarnOnStreamDisconnect connected={connected}>
+        <View style={styles.container}>
+          {isCurrentlyStreaming ?
+            <>
+              <Text>Render Total Frames: {stats['render-total-frames']}</Text>
+              <Text>Render Missed Frames: {stats['render-missed-frames']}</Text>
+              <Text>Output Total Frames: {stats['output-total-frames']}</Text>
+              <Text>Output Skipped Frames: {stats['output-skipped-frames']}</Text>
+              <Text>Average Frame Time: {stats['average-frame-time']}</Text>
+              <Text>CPU Usage: {stats['cpu-usage']}</Text>
+              <Text>Memory Usage: {stats['memory-usage']}</Text>
+              <Text>Free Disk Space: {stats['free-disk-space']}</Text>
+            </>
+            : <Text>Not currently streaming</Text>
+          }
+        </View>
+      </WarnOnStreamDisconnect>
     </SafeAreaView>
   );
 };
