@@ -87,7 +87,7 @@ const OBSWebSocketApp = () => {
           </SceneSelectContext.Provider>
         </StartStopStreamingButtonContext.Provider>
       </StatsContext.Provider>
-    </StreamContext.Provider>
+    </OBSWebSocketContext.Provider>
   );
 }
 
