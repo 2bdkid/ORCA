@@ -73,7 +73,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       .then(({ streaming }) => setIsCurrentlyStreaming(streaming))
   }
 
-  const setConnectedTrue = async () => {
+  const setConnectedTrue = () => {
     setConnected(true);
   };
 
@@ -88,7 +88,10 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
 
   // connect to obs websocket and get state
   useEffect(() => {
-    (async () => await connect().catch(e => console.log(e)))();
+    (async () => await connect().catch(e => {
+      console.log(e);
+      setConnected(false);
+    }))();
     return () => obs.current.disconnect();
   }, []);
 
@@ -107,13 +110,19 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     obs.current.on('ScenesChanged', ({ scenes }) => {
       setSceneList(scenes);
     });
+    obs.current.on('Exiting', () => {
+      setConnected(false);
+    });
   }, []);
 
   const setCurrentSceneInSync = (sceneName: string) => {
     (async () => obs.current
       .send('SetCurrentScene', { 'scene-name': sceneName })
       .then(() => setCurrentScene(sceneName))
-      .catch(e => console.log(e)))();
+      .catch(e => {
+        console.log(e);
+        setConnected(false);
+      }))();
   };
 
   return {
