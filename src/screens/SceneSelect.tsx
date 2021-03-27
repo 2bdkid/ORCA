@@ -32,6 +32,7 @@ const SceneSelect = () => {
                 key={scene.name}
                 containerStyle={styles.buttonContainer}
                 buttonStyle={scene.name == currentScene ? styles.selectedButton : styles.unselectedButton}
+                raised
               />)}
           </ScrollView>
         </View>
