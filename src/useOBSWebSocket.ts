@@ -4,6 +4,7 @@ import useInterval from 'react-useinterval';
 
 interface useOBSWebSocketReturnValue {
   obs: OBSWebSocket,
+  connected: boolean,
   readonly sceneList: OBSWebSocket.Scene[],
   readonly currentScene: string,
   setCurrentScene: (scene: string) => void,
@@ -17,6 +18,7 @@ interface SocketURI {
 }
 
 const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
+  const [connected, setConnected] = useState(false);
   const obs = useRef(new OBSWebSocket());
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
   const [currentScene, setCurrentScene] = useState('');
@@ -60,11 +62,16 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       .then(({ streaming }) => setIsCurrentlyStreaming(streaming))
   }
 
+  const setConnectedTrue = async () => {
+    setConnected(true);
+  };
+
   // connect to obs websocket and get state
   useEffect(() => {
     (async () => {
       await obs.current
         .connect(uri)
+        .then(setConnectedTrue)
         .then(getIsCurrentlyStreaming)
         .then(getCurrentScene)
         .then(getSceneList)
@@ -98,6 +105,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
   };
 
   return {
+    connected: connected,
     obs: obs.current,
     sceneList: sceneList,
     currentScene: currentScene,
