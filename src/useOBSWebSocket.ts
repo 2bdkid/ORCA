@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect } from 'react';
 import OBSWebSocket from 'obs-websocket-js';
 import useInterval from 'react-useinterval';
 
@@ -10,12 +10,19 @@ interface useOBSWebSocketReturnValue {
   setCurrentScene: (scene: string) => void,
   readonly isCurrentlyStreaming: boolean,
   readonly stats: OBSWebSocket.OBSStats,
+  reconnect: () => void,
 };
 
 interface SocketURI {
   address: string,
   password: string,
 }
+
+export const StreamContext = React.createContext({
+  isCurrentlyStreaming: false,
+  connected: false,
+  reconnect: () => { },
+});
 
 const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
   const [connected, setConnected] = useState(false);
@@ -70,17 +77,18 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     setConnected(true);
   };
 
+  const connect = async () => {
+    return await obs.current
+      .connect(uri)
+      .then(setConnectedTrue)
+      .then(getIsCurrentlyStreaming)
+      .then(getCurrentScene)
+      .then(getSceneList)
+  };
+
   // connect to obs websocket and get state
   useEffect(() => {
-    (async () => {
-      await obs.current
-        .connect(uri)
-        .then(setConnectedTrue)
-        .then(getIsCurrentlyStreaming)
-        .then(getCurrentScene)
-        .then(getSceneList)
-        .catch(e => console.log(e));
-    })();
+    (async () => await connect().catch(e => console.log(e)))();
     return () => obs.current.disconnect();
   }, []);
 
@@ -116,6 +124,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     isCurrentlyStreaming: isCurrentlyStreaming,
     setCurrentScene: setCurrentSceneInSync,
     stats: stats,
+    reconnect: connect,
   };
 };
 

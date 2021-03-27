@@ -1,7 +1,7 @@
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import useOBSWebSocket from './useOBSWebSocket';
+import useOBSWebSocket, { StreamContext } from './useOBSWebSocket';
 import useBottomTabNavigator from './useBottomTabNavigator';
 import SceneSelect, { SceneSelectContext } from './screens/SceneSelect';
 import StartStopStreamingButton, { StartStopStreamingButtonContext } from './screens/StartStopStreamingButton';
@@ -23,7 +23,14 @@ const OBSWebSocketApp = () => {
     isCurrentlyStreaming,
     setCurrentScene,
     stats,
+    reconnect,
   } = useOBSWebSocket(uri);
+
+  const streamContext = {
+    isCurrentlyStreaming: isCurrentlyStreaming,
+    reconnect: reconnect,
+    connected: connected,
+  };
 
   const toggleStream = () => {
     (async () => await obs
@@ -35,55 +42,52 @@ const OBSWebSocketApp = () => {
     sceneList: sceneList,
     currentScene: currentScene,
     setCurrentScene: setCurrentScene,
-    connected: connected,
   };
 
   const startStopStreamingButtonContext = {
-    isCurrentlyStreaming: isCurrentlyStreaming,
     onPress: toggleStream,
-    connected: connected,
   };
 
   const statsContext = {
-    isCurrentlyStreaming: isCurrentlyStreaming,
     stats: stats,
-    connected: connected,
   };
 
   return (
-    <StatsContext.Provider value={statsContext}>
-      <StartStopStreamingButtonContext.Provider value={startStopStreamingButtonContext}>
-        <SceneSelectContext.Provider value={sceneSelectContext}>
-          <Tab.Navigator
-            initialRouteName='Scene Select'
-            tabBarOptions={{ 'showLabel': false }}
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ color, size }) => {
-                const iconName: { [index:string] : string} = {
-                  'Scene Select': 'home-outline',
-                  'Start Stop Stream Button': 'cloud-upload-outline',
-                  'Stats': 'information-circle-outline',
+    <StreamContext.Provider value={streamContext}>
+      <StatsContext.Provider value={statsContext}>
+        <StartStopStreamingButtonContext.Provider value={startStopStreamingButtonContext}>
+          <SceneSelectContext.Provider value={sceneSelectContext}>
+            <Tab.Navigator
+              initialRouteName='Scene Select'
+              tabBarOptions={{ 'showLabel': false }}
+              screenOptions={({ route }) => ({
+                tabBarIcon: ({ color, size }) => {
+                  const iconName: { [index: string]: string } = {
+                    'Scene Select': 'home-outline',
+                    'Start Stop Stream Button': 'cloud-upload-outline',
+                    'Stats': 'information-circle-outline',
+                  }
+                  return <Ionicons name={iconName[route.name]} color={color} size={size} />;
                 }
-                return <Ionicons name={iconName[route.name]} color={color} size={size} />;
-              }
-            })}
-          >
-            <Tab.Screen
-              name='Scene Select'
-              component={SceneSelect}
-            />
-            <Tab.Screen
-              name='Start Stop Stream Button'
-              component={StartStopStreamingButton}
-            />
-            <Tab.Screen
-              name='Stats'
-              component={Stats}
-            />
-          </Tab.Navigator>
-        </SceneSelectContext.Provider>
-      </StartStopStreamingButtonContext.Provider>
-    </StatsContext.Provider>
+              })}
+            >
+              <Tab.Screen
+                name='Scene Select'
+                component={SceneSelect}
+              />
+              <Tab.Screen
+                name='Start Stop Stream Button'
+                component={StartStopStreamingButton}
+              />
+              <Tab.Screen
+                name='Stats'
+                component={Stats}
+              />
+            </Tab.Navigator>
+          </SceneSelectContext.Provider>
+        </StartStopStreamingButtonContext.Provider>
+      </StatsContext.Provider>
+    </StreamContext.Provider>
   );
 }
 

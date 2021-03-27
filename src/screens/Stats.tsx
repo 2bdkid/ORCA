@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WarnOnStreamDisconnect from '../WarnOnStreamDisconnect';
+import { StreamContext } from '../useOBSWebSocket';
 
 export const StatsContext = React.createContext({
-  isCurrentlyStreaming: false,
   stats: {
     fps: 0.0,
     'render-total-frames': 0,
@@ -16,19 +16,22 @@ export const StatsContext = React.createContext({
     'memory-usage': 0,
     'free-disk-space': 0,
   },
-  connected: false,
 });
 
 const Stats = () => {
   const {
-    isCurrentlyStreaming,
     stats,
-    connected,
   } = useContext(StatsContext);
+
+  const {
+    reconnect,
+    isCurrentlyStreaming,
+    connected
+  } = useContext(StreamContext);
 
   return (
     <SafeAreaView>
-      <WarnOnStreamDisconnect connected={connected}>
+      <WarnOnStreamDisconnect reconnect={reconnect} connected={connected}>
         <View style={styles.container}>
           {isCurrentlyStreaming ?
             <>
