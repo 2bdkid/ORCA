@@ -22,6 +22,9 @@ const OBSWebSocketApp = () => {
     currentScene,
     isCurrentlyStreaming,
     setCurrentScene,
+    currentSceneCollection,
+    setCurrentSceneCollection,
+    sceneCollectionList,
     stats,
     reconnect,
   } = useOBSWebSocket(uri);
@@ -42,6 +45,9 @@ const OBSWebSocketApp = () => {
     sceneList: sceneList,
     currentScene: currentScene,
     setCurrentScene: setCurrentScene,
+    currentSceneCollection: currentSceneCollection,
+    sceneCollectionList: sceneCollectionList,
+    setCurrentSceneCollection: setCurrentSceneCollection,
   };
 
   const startStopStreamingButtonContext = {

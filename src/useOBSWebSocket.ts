@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import OBSWebSocket from 'obs-websocket-js';
 import useInterval from 'react-useinterval';
 
@@ -8,6 +8,9 @@ interface useOBSWebSocketReturnValue {
   readonly sceneList: OBSWebSocket.Scene[],
   readonly currentScene: string,
   setCurrentScene: (scene: string) => void,
+  readonly sceneCollectionList: string[],
+  readonly currentSceneCollection: string,
+  setCurrentSceneCollection: (scene: string) => void,
   readonly isCurrentlyStreaming: boolean,
   readonly stats: OBSWebSocket.OBSStats,
   reconnect: () => void,
@@ -30,6 +33,8 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
   const [sceneList, setSceneList] = useState<OBSWebSocket.Scene[]>([]);
   const [currentScene, setCurrentScene] = useState('');
   const [isCurrentlyStreaming, setIsCurrentlyStreaming] = useState(false);
+  const [currentSceneCollection, setCurrentSceleCollection] = useState('');
+  const [sceneCollectionList, setSceneCollectionList] = useState<string[]>([]);
   const [stats, setStats] = useState<OBSWebSocket.OBSStats>({
     fps: 0.0,
     'render-total-frames': 0,
@@ -70,8 +75,20 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
   const getIsCurrentlyStreaming = async () => {
     return obs.current
       .send('GetStreamingStatus')
-      .then(({ streaming }) => setIsCurrentlyStreaming(streaming))
+      .then(({ streaming }) => setIsCurrentlyStreaming(streaming));
   }
+
+  const getSceneCollectionList = async () => {
+    return obs.current
+      .send('ListSceneCollections')
+      .then(({ 'scene-collections': collectionList }) => setSceneCollectionList(collectionList.map(({ 'sc-name': collection}) => collection)));
+  };
+
+  const getCurrentSceneCollection = async () => {
+    return obs.current
+      .send('GetCurrentSceneCollection')
+      .then(({ 'sc-name': scene }) => setCurrentSceleCollection(scene));
+  };
 
   const setConnectedTrue = () => {
     setConnected(true);
@@ -83,6 +100,8 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       .then(setConnectedTrue)
       .then(getIsCurrentlyStreaming)
       .then(getCurrentScene)
+      .then(getCurrentSceneCollection)
+      .then(getSceneCollectionList)
       .then(getSceneList)
   };
 
@@ -113,6 +132,12 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     obs.current.on('Exiting', () => {
       setConnected(false);
     });
+    obs.current.on('SceneCollectionChanged', ({ sceneCollection }) => {
+      setCurrentSceleCollection(sceneCollection);
+    });
+    obs.current.on('SceneCollectionListChanged', ({ collectionList }) => {
+      setSceneCollectionList(collectionList.map(collection => collection.name));
+    });
   }, []);
 
   const setCurrentSceneInSync = (sceneName: string) => {
@@ -125,6 +150,16 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       }))();
   };
 
+  const setCurrentSceneCollectionInSync = (collectionName: string) => {
+    (async () => obs.current
+      .send('SetCurrentSceneCollection', { 'sc-name': collectionName })
+      .then(() => setCurrentSceleCollection(collectionName))
+      .catch(e => {
+        console.log(e);
+        setConnected(false);
+      }))();
+  }
+
   return {
     connected: connected,
     obs: obs.current,
@@ -134,6 +169,9 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
     setCurrentScene: setCurrentSceneInSync,
     stats: stats,
     reconnect: connect,
+    currentSceneCollection: currentSceneCollection,
+    sceneCollectionList: sceneCollectionList,
+    setCurrentSceneCollection: setCurrentSceneCollectionInSync,
   };
 };
 
