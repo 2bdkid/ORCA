@@ -26,7 +26,7 @@ const OBSWebSocketApp = () => {
     sceneCollectionList,
     stats,
     reconnect,
-  } = useOBSWebSocket({ address, password});
+  } = useOBSWebSocket({ address, password });
 
   const obsWebSocketContext = {
     isCurrentlyStreaming: isCurrentlyStreaming,
@@ -87,7 +87,7 @@ const OBSWebSocketApp = () => {
               <Tab.Screen
                 name='Stats'
                 component={Stats}
-                options={connected ? {} : { tabBarBadge: '!'}}
+                options={connected ? {} : { tabBarBadge: '!' }}
               />
             </Tab.Navigator>
           </SceneSelectContext.Provider>
