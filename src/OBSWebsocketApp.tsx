@@ -1,19 +1,18 @@
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
 
 import useOBSWebSocket, { OBSWebSocketContext } from './useOBSWebSocket';
 import useBottomTabNavigator from './useBottomTabNavigator';
 import SceneSelect, { SceneSelectContext } from './screens/SceneSelect';
 import StartStopStreamingButton, { StartStopStreamingButtonContext } from './screens/StartStopStreamingButton';
 import Stats, { StatsContext } from './screens/Stats';
-
-const uri = {
-  address: '192.168.1.18:4444',
-  password: 'password'
-};
+import { selectAddress, selectPassword } from './features/OBSWebSocket/OBSWebSocketConnectionSlice';
 
 const OBSWebSocketApp = () => {
   const Tab = useBottomTabNavigator();
+  const address = useSelector(selectAddress);
+  const password = useSelector(selectPassword);
 
   const {
     connected,
@@ -27,7 +26,7 @@ const OBSWebSocketApp = () => {
     sceneCollectionList,
     stats,
     reconnect,
-  } = useOBSWebSocket(uri);
+  } = useOBSWebSocket({ address, password});
 
   const obsWebSocketContext = {
     isCurrentlyStreaming: isCurrentlyStreaming,
