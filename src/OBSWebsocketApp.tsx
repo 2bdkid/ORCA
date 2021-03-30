@@ -87,6 +87,7 @@ const OBSWebSocketApp = () => {
               <Tab.Screen
                 name='Stats'
                 component={Stats}
+                options={connected ? {} : { tabBarBadge: '!'}}
               />
             </Tab.Navigator>
           </SceneSelectContext.Provider>
