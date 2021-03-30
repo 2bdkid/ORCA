@@ -95,7 +95,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
   };
 
   const connect = async () => {
-    return await obs.current
+    return obs.current
       .connect(uri)
       .then(setConnectedTrue)
       .then(getIsCurrentlyStreaming)
