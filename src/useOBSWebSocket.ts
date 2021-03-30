@@ -112,7 +112,7 @@ const useOBSWebSocket = (uri: SocketURI): useOBSWebSocketReturnValue => {
       setConnected(false);
     }))();
     return () => obs.current.disconnect();
-  }, []);
+  }, [uri.address, uri.password]);
 
   // set up event callbacks
   useEffect(() => {
