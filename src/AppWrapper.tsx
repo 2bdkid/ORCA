@@ -4,15 +4,19 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import OBSWebSocketApp from './OBSWebsocketApp';
 import store from './app/store';
 import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistedStore } from './app/store';
 
 const AppWrapper = () => {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Provider store={store}>
-          <OBSWebSocketApp />
-        </Provider>
-      </NavigationContainer>
+      <PersistGate loading={null} persistor={persistedStore}>
+        <NavigationContainer>
+          <Provider store={store}>
+            <OBSWebSocketApp />
+          </Provider>
+        </NavigationContainer>
+      </PersistGate>
     </SafeAreaProvider>
   );
 };
