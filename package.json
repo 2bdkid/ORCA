@@ -48,5 +48,8 @@
   "jest": {
     "preset": "react-native"
   },
+  "bugs": "https://github.com/2bdkid/ORCA/issues",
+  "license": "GPL-3.0-or-later",
+  "author": "Brady Dean <2bdkid@gmail.com>",
   "private": true
 }
