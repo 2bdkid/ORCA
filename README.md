@@ -4,7 +4,7 @@
 
 <div align="center">
   <p>OBS Remote Control Application for iOS and Android</p>
-  <a href="https://github.com/2bdkid/ORCA/blog/master/LICENSE">
+  <a href="https://github.com/2bdkid/ORCA/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="ORCA is released under the GPLv3 license." />
   </a>
 </div>
