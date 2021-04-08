@@ -44,6 +44,6 @@ ORCA connects to [obs-websocket](https://github.com/Palakis/obs-websocket) runni
 
 # License
 
-ORCA is released under the GPLv3, see `LICENSE`.
+ORCA is released under the GPLv3, see [COPYING](https://github.com/2bdkid/ORCA/blob/main/COPYING).
 
-ORCA incorporates MIT licensed code, see `LICENSE.MIT`.
+ORCA incorporates MIT licensed code, see [LICENSE.MIT](https://github.com/2bdkid/ORCA/blob/main/LICENSE.MIT).
